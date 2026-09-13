@@ -12,15 +12,49 @@ md2pdf report.md -o out.pdf -s "نسخه ۱٫۰ — گزارش تحویل"
 
 Output defaults to the input path with a `.pdf` extension.
 
+## Supported systems
+
+| OS | Status |
+|---|---|
+| macOS | Supported and tested (Apple Silicon and Intel) |
+| Linux | Supported — same code paths; Chrome/Chromium found in the usual places |
+| Windows | Use **WSL** and follow the Linux instructions |
+
+The entry point is a POSIX `sh` script, so on Windows it needs WSL or Git Bash.
+Under Git Bash you can also call `python md2pdf.py …` directly; Chrome and Edge
+are looked for in `C:/Program Files/…` as well.
+
 ## Install
 
 ```bash
-./install.sh                 # links into ~/.local/bin
+./install.sh                 # checks requirements, then links into ~/.local/bin
 ./install.sh /usr/local/bin  # or somewhere already on PATH
+./install.sh --check         # only report on requirements, change nothing
 ```
 
 It links rather than copies, so pulling updates here updates the command too.
 Running `./md2pdf` directly from this folder works without installing.
+
+**`install.sh` never installs anything for you.** Python, Node and Chrome are
+system-wide packages with their own upgrade paths, and a document tool is the
+wrong thing to be silently putting a browser on your machine. It checks what is
+present and prints the command for your OS for whatever is not:
+
+```
+md2pdf — checking requirements (macos)
+
+  [ ok ] Python    3.13.7 (/opt/homebrew/bin/python3.13)
+  [MISS] Node      Node 22+ not found
+         brew install node   (or use nvm / volta; or set NODE=/path/to/node)
+  [ ok ] Chrome    /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  [warn] IRANSans  not found — falling back to Vazirmatn / B Nazanin / Tahoma
+```
+
+It exits non-zero when a required item is missing, but still creates the link,
+so installing the dependency later is all that is left to do. IRANSans is a
+warning rather than an error: the stylesheet falls back, and the PDF is still
+produced — it just does not look as intended, which is the kind of failure
+worth being told about.
 
 ## Options
 
@@ -40,7 +74,7 @@ Running `./md2pdf` directly from this folder works without installing.
 | Python 3.8+ | The wrapper probes for a working one; override with `PYTHON=…` |
 | Node 22+ | Found on `PATH`, under `~/.nvm`, or via `NODE=…` |
 | Chrome / Chromium / Edge | Override with `CHROME_PATH=…` |
-| IRANSans | Falls back to Vazirmatn → B Nazanin → Geeza Pro → Tahoma |
+| IRANSans | Optional; falls back to Vazirmatn → B Nazanin → Geeza Pro → Tahoma |
 
 No `npm install`: the PDF step drives Chrome over the DevTools Protocol using
 Node's built-in WebSocket, and `assets/mermaid.min.js` is vendored, so the tool

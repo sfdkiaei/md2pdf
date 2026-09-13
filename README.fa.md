@@ -18,13 +18,26 @@ md2pdf report.md -o out.pdf -s "نسخه ۱٫۰ — گزارش تحویل"
 
 خروجی به‌صورت پیش‌فرض همان مسیر ورودی با پسوند `.pdf` است.
 
+## سیستم‌عامل‌های پشتیبانی‌شده
+
+| سیستم‌عامل | وضعیت |
+|---|---|
+| macOS | پشتیبانی‌شده و تست‌شده (Apple Silicon و Intel) |
+| Linux | پشتیبانی‌شده — همان مسیر کد؛ Chrome/Chromium در مسیرهای متداول پیدا می‌شود |
+| Windows | از **WSL** استفاده کنید و دستورهای Linux را دنبال کنید |
+
+نقطه‌ی ورود یک اسکریپت `sh` است، پس روی ویندوز به WSL یا Git Bash نیاز دارد.
+زیر Git Bash می‌توانید مستقیم `python md2pdf.py …` را هم صدا بزنید؛ Chrome و
+Edge در مسیر `C:/Program Files/…` هم جست‌وجو می‌شوند.
+
 ## نصب
 
 <div dir="ltr">
 
 ```bash
-./install.sh                 # لینک در ~/.local/bin
+./install.sh                 # بررسی پیش‌نیازها، سپس لینک در ~/.local/bin
 ./install.sh /usr/local/bin  # یا هر مسیری که روی PATH هست
+./install.sh --check         # فقط گزارش پیش‌نیازها، بدون هیچ تغییری
 ```
 
 </div>
@@ -32,6 +45,31 @@ md2pdf report.md -o out.pdf -s "نسخه ۱٫۰ — گزارش تحویل"
 نصب با symlink انجام می‌شود نه کپی، پس هر به‌روزرسانی در این پوشه بلافاصله روی
 دستور نصب‌شده اعمال می‌شود. اجرای مستقیم `./md2pdf` از داخل همین پوشه هم بدون
 نصب کار می‌کند.
+
+**`install.sh` هیچ‌چیزی را برای شما نصب نمی‌کند.** پایتون، Node و Chrome
+بسته‌های سطح سیستم‌اند و مسیر به‌روزرسانی خودشان را دارند؛ یک ابزار تولید سند
+جای مناسبی برای نصب بی‌صدای یک مرورگر روی ماشین شما نیست. کاری که می‌کند این
+است که بررسی کند چه چیزی هست و برای هرچه نیست، دستور مخصوص سیستم‌عامل شما را
+چاپ کند:
+
+<div dir="ltr">
+
+```
+md2pdf — checking requirements (macos)
+
+  [ ok ] Python    3.13.7 (/opt/homebrew/bin/python3.13)
+  [MISS] Node      Node 22+ not found
+         brew install node   (or use nvm / volta; or set NODE=/path/to/node)
+  [ ok ] Chrome    /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  [warn] IRANSans  not found — falling back to Vazirmatn / B Nazanin / Tahoma
+```
+
+</div>
+
+اگر پیش‌نیاز الزامی غایب باشد با کد خروجی غیرصفر تمام می‌شود، اما symlink را
+می‌سازد — تا بعد از نصب آن وابستگی، کار دیگری نمانده باشد. IRANSans هشدار است
+نه خطا: قلم جایگزین اعمال می‌شود و PDF ساخته می‌شود، فقط آن شکلی که باید
+نمی‌شود — و همین نوع خرابی است که ارزش دارد به شما گفته شود.
 
 ## گزینه‌ها
 
@@ -51,7 +89,7 @@ md2pdf report.md -o out.pdf -s "نسخه ۱٫۰ — گزارش تحویل"
 | Python 3.8+ | wrapper خودش یک مفسر سالم پیدا می‌کند؛ با `PYTHON=…` قابل تعیین است |
 | Node 22+ | از `PATH`، از `~/.nvm`، یا با `NODE=…` |
 | Chrome / Chromium / Edge | با `CHROME_PATH=…` قابل تعیین است |
-| قلم IRANSans | در نبودش: Vazirmatn ← B Nazanin ← Geeza Pro ← Tahoma |
+| قلم IRANSans | اختیاری؛ در نبودش: Vazirmatn ← B Nazanin ← Geeza Pro ← Tahoma |
 
 هیچ `npm install` لازم نیست: مرحله‌ی PDF، مرورگر Chrome را از طریق DevTools
 Protocol و با WebSocket داخلی خود Node راه می‌اندازد، و `assets/mermaid.min.js`

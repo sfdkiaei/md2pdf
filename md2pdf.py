@@ -348,12 +348,17 @@ def find_node():
     """Locate Node >= 22. A version manager keeps node out of a non-login
     shell's PATH, so PATH alone is not enough to go on."""
     candidates = [os.environ.get("NODE"), "node"]
-    nvm = os.path.expanduser("~/.nvm/versions/node")
-    if os.path.isdir(nvm):
-        # Newest first, so a stale old install does not win.
-        for v in sorted(os.listdir(nvm), reverse=True):
-            candidates.append(os.path.join(nvm, v, "bin", "node"))
-    candidates += ["/opt/homebrew/bin/node", "/usr/local/bin/node", "/usr/bin/node"]
+    for root in ("~/.nvm/versions/node", "~/.local/share/fnm/node-versions"):
+        base = os.path.expanduser(root)
+        if os.path.isdir(base):
+            # Newest first, so a stale old install does not win.
+            for v in sorted(os.listdir(base), reverse=True):
+                candidates.append(os.path.join(base, v, "bin", "node"))
+                candidates.append(os.path.join(base, v, "installation", "bin", "node"))
+    candidates += [
+        os.path.expanduser("~/.volta/bin/node"),
+        "/opt/homebrew/bin/node", "/usr/local/bin/node", "/usr/bin/node",
+    ]
 
     for c in candidates:
         if not c:
